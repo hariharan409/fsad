@@ -1,0 +1,38 @@
+
+STUDENTS
+{
+    student_id: string,        // Unique ID (manual or auto)
+    name: string,
+    class: string,             // e.g. "5A"
+    dob: Date,
+    gender: string,            // "Male", "Female", "Other"
+    vaccinations: [
+      {
+        vaccine_name: string,
+        drive_id: ObjectId,    // Reference to the drive
+        date: Date
+      }
+    ],
+    createdAt: Date,
+    updatedAt: Date
+  }
+
+DRIVES
+{
+  vaccine_name: string,
+  date: Date,
+  number_of_doses: number,
+  applicable_classes: string[],   // e.g. ["5A", "5B", "6"]
+  students_vaccinated: ObjectId[], // Optional list of student IDs
+  createdAt: Date,
+  updatedAt: Date
+}
+
+USERS
+{
+  username: string,
+  password: string,    // Can be plain text since it's simulated
+  role: "admin",       // Only one role
+  token?: string       // Optional hardcoded token
+}
+
