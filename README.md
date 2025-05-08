@@ -11,6 +11,7 @@ A full-stack application to manage students, vaccination drives, and vaccination
 - Assign students to vaccination drives
 - Vaccination reporting with filters and CSV export
 - Dashboard with real-time stats and pie charts
+- MongoDB Is in the Cloud
 
 ---
 
@@ -32,6 +33,9 @@ A full-stack application to manage students, vaccination drives, and vaccination
    git clone https://github.com/YOUR_USERNAME/school-vaccination-portal.git
    cd school-vaccination-portal
    ```
+
+### USERNAME: admin1
+### PASSWORD: pass123
 
 ---
 
