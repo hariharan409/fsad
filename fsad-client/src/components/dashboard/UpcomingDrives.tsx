@@ -1,8 +1,11 @@
 import React from "react";
-import { upcomingDrives } from "./mockDashboardData";
+import { useDashboard } from "@/hooks/useDashboard";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 const UpcomingDrives = () => {
+  const { stats } = useDashboard();
+  const drives = stats?.upcomingDrives || [];
+
   return (
     <Card>
       <CardHeader>
@@ -18,13 +21,21 @@ const UpcomingDrives = () => {
             </tr>
           </thead>
           <tbody>
-            {upcomingDrives.map((drive) => (
-              <tr key={drive.id} className="border-b hover:bg-gray-50">
-                <td className="px-2 py-2 font-medium">{drive.vaccine}</td>
-                <td className="px-2 py-2">{drive.date}</td>
-                <td className="px-2 py-2">{drive.classes.join(", ")}</td>
+            {drives.length === 0 ? (
+              <tr>
+                <td colSpan={3} className="text-center py-4 text-gray-500">
+                  No upcoming drives
+                </td>
               </tr>
-            ))}
+            ) : (
+              drives.map((drive) => (
+                <tr key={drive._id} className="border-b hover:bg-gray-50">
+                  <td className="px-2 py-2 font-medium">{drive.vaccine_name}</td>
+                  <td className="px-2 py-2">{new Date(drive.date).toLocaleDateString()}</td>
+                  <td className="px-2 py-2">{drive.applicable_classes.join(", ")}</td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </CardContent>

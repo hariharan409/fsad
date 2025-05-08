@@ -1,20 +1,23 @@
 import React from "react";
+import { useDashboard } from "@/hooks/useDashboard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { dashboardStats } from "./mockDashboardData";
 
 const DashboardStats = () => {
-  const { totalStudents, vaccinatedStudents } = dashboardStats;
-  const coverage = ((vaccinatedStudents / totalStudents) * 100).toFixed(1);
+  const { stats } = useDashboard();
 
-  const stats = [
+  if (!stats) return null;
+
+  const { totalStudents, vaccinatedStudents, vaccinatedPercentage } = stats;
+
+  const statData = [
     { label: "Total Students", value: totalStudents },
     { label: "Vaccinated Students", value: vaccinatedStudents },
-    { label: "Coverage %", value: `${coverage}%` },
+    { label: "Coverage %", value: `${vaccinatedPercentage}%` },
   ];
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-      {stats.map((stat, index) => (
+      {statData.map((stat, index) => (
         <Card key={index} className="shadow-md">
           <CardHeader>
             <CardTitle className="text-sm">{stat.label}</CardTitle>

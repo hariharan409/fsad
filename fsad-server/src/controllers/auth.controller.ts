@@ -1,23 +1,34 @@
-import { Request, Response } from 'express';
-import jwt from 'jsonwebtoken';
-import User from '../models/User';
+import { Request, Response } from "express";
+import User from "../models/user.model";
+import { generateToken } from "../utils/jwt";
 
-export const loginUser = async (req: Request, res: Response) => {
+export const register = async (req: Request, res: Response) => {
   const { username, password } = req.body;
+
   try {
-    const user = await User.findOne({ username });
-    if (!user || user.password !== password) {
-      return res.status(401).json({ message: "Invalid credentials" });
-    }
+    const existing = await User.findOne({ username });
+    if (existing) return res.status(400).json({ message: "User already exists" });
 
-    const token = jwt.sign(
-      { id: user._id, username: user.username, role: user.role },
-      process.env.JWT_SECRET!,
-      { expiresIn: "1h" }
-    );
+    const newUser = new User({ username, password, role: "admin" });
+    await newUser.save();
 
-    res.json({ token });
+    return res.status(201).json({ message: "User registered successfully" });
   } catch (err) {
-    res.status(500).json({ message: "Server error", error: err });
+    return res.status(500).json({ message: "Error registering user", error: err });
+  }
+};
+
+export const login = async (req: Request, res: Response) => {
+  const { username, password } = req.body;
+
+  try {
+    const user = await User.findOne({ username, password }); // plain text match for simulation
+    if (!user) return res.status(401).json({ message: "Invalid credentials" });
+
+    const token = generateToken({ username: user.username, role: user.role });
+
+    return res.status(200).json({ token, user: { username: user.username, role: user.role } });
+  } catch (err) {
+    return res.status(500).json({ message: "Login failed", error: err });
   }
 };

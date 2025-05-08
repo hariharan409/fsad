@@ -1,11 +1,11 @@
 import React from "react";
-import { Drive } from "./mockDrives";
+import { Drive } from "@/hooks/useDrives";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 
 type Props = {
   drives: Drive[];
-  onEdit?: (drive: Drive) => void; // optional edit callback
+  onEdit?: (drive: Drive) => void;
 };
 
 const DriveTable: React.FC<Props> = ({ drives, onEdit }) => {
@@ -19,6 +19,7 @@ const DriveTable: React.FC<Props> = ({ drives, onEdit }) => {
             <th className="px-4 py-2 font-medium">Vaccine</th>
             <th className="px-4 py-2 font-medium">Date</th>
             <th className="px-4 py-2 font-medium">Doses</th>
+            <th className="px-4 py-2 font-medium">Remaining</th>
             <th className="px-4 py-2 font-medium">Classes</th>
             <th className="px-4 py-2 font-medium">Status</th>
             <th className="px-4 py-2 font-medium">Actions</th>
@@ -27,11 +28,15 @@ const DriveTable: React.FC<Props> = ({ drives, onEdit }) => {
         <tbody>
           {drives.map((drive) => {
             const isPast = new Date(drive.date) < today;
+            const remaining =
+              drive.number_of_doses - drive.students_vaccinated.length;
+
             return (
-              <tr key={drive.id} className="border-t hover:bg-gray-50">
+              <tr key={drive._id || drive.vaccine_name + drive.date} className="border-t hover:bg-gray-50">
                 <td className="px-4 py-2">{drive.vaccine_name}</td>
                 <td className="px-4 py-2">{format(new Date(drive.date), "dd MMM yyyy")}</td>
                 <td className="px-4 py-2">{drive.number_of_doses}</td>
+                <td className="px-4 py-2">{remaining}</td>
                 <td className="px-4 py-2">{drive.applicable_classes.join(", ")}</td>
                 <td className="px-4 py-2">
                   {isPast ? (

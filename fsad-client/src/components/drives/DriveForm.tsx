@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Drive } from "./mockDrives";
+import { useToast } from "@/hooks/use-toast";
+import { Drive } from "@/hooks/useDrives";
 import { format } from "date-fns";
 
 type Props = {
@@ -13,6 +14,8 @@ type Props = {
 const classOptions = ["5A", "5B", "6A", "6B"];
 
 const DriveForm: React.FC<Props> = ({ onSubmit, initialData }) => {
+  const { toast } = useToast();
+
   const [vaccine, setVaccine] = useState("");
   const [date, setDate] = useState("");
   const [doses, setDoses] = useState(1);
@@ -28,25 +31,47 @@ const DriveForm: React.FC<Props> = ({ onSubmit, initialData }) => {
   }, [initialData]);
 
   const toggleClass = (cls: string) => {
-    if (classes.includes(cls)) {
-      setClasses(classes.filter((c) => c !== cls));
-    } else {
-      setClasses([...classes, cls]);
-    }
+    setClasses((prev) =>
+      prev.includes(cls) ? prev.filter((c) => c !== cls) : [...prev, cls]
+    );
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    const selectedDate = new Date(date);
+    const minDate = new Date();
+    minDate.setDate(minDate.getDate() + 15);
+
+    if (!vaccine || !date || !doses || classes.length === 0) {
+      toast({
+        variant: "destructive",
+        title: "Missing Fields",
+        description: "Please fill in all required fields.",
+      });
+      return;
+    }
+
+    if (selectedDate < minDate) {
+      toast({
+        variant: "destructive",
+        title: "Invalid Date",
+        description: "Drive must be scheduled at least 15 days in advance.",
+      });
+      return;
+    }
+
     const newDrive: Drive = {
-      id: initialData?.id || Date.now().toString(),
+      ...(initialData?._id ? { _id: initialData._id } : {}),
       vaccine_name: vaccine,
-      date: new Date(date),
+      date: selectedDate,
       number_of_doses: doses,
       applicable_classes: classes,
-      students_vaccinated: [],
-      createdAt: initialData?.createdAt || new Date(),
-      updatedAt: new Date()
+      students_vaccinated: initialData?.students_vaccinated || [],
+      createdAt: initialData?.createdAt || new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
+
     onSubmit(newDrive);
   };
 

@@ -1,5 +1,5 @@
 import React from "react";
-import { VaccinatedStudent } from "@/components/reports/mockReports";
+import { VaccinatedStudent } from "@/hooks/useReportData";
 
 type Props = {
   data: VaccinatedStudent[];
@@ -10,10 +10,10 @@ const ExportCSV: React.FC<Props> = ({ data }) => {
     const headers = ["ID", "Name", "Class", "Vaccine", "Date"];
     const rows = data.flatMap((student) =>
       student.vaccinations.map((record) => [
-        student.id,
+        student.student_id,
         student.name,
         student.class,
-        record.vaccine,
+        record.vaccine_name,
         new Date(record.date).toLocaleDateString(),
       ])
     );

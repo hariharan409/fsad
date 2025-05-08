@@ -1,46 +1,53 @@
 import React, { useState } from "react";
-import { mockReports, VaccinatedStudent } from "@/components/reports/mockReports";
 import ExportCSV from "@/components/reports/ExportCSV";
 import ReportsTable from "@/components/reports/ReportsTable";
+import { useReportData } from "@/hooks/useReportData";
 
 const classOptions = ["5A", "5B", "6A", "6B"];
-const vaccineOptions = ["HPV", "Tetanus", "MMR"];
 
 const Reports = () => {
+  const { data } = useReportData();
+
   const [selectedClass, setSelectedClass] = useState("");
   const [selectedVaccine, setSelectedVaccine] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
-  const filteredData: VaccinatedStudent[] = mockReports.filter((student) => {
-    const matchesClass = selectedClass ? student.class === selectedClass : true;
+  const filteredData = data.filter((student) => {
+    const matchClass = selectedClass ? student.class === selectedClass : true;
 
-    const vaccinations = student.vaccinations.filter((record) => {
-      const vaccineMatch = selectedVaccine ? record.vaccine === selectedVaccine : true;
+    const filteredVaccinations = student.vaccinations.filter((v) => {
+      const matchVaccine = selectedVaccine
+        ? v.vaccine_name === selectedVaccine
+        : true;
 
-      const recordDate = new Date(record.date);
+      const vDate = new Date(v.date);
       const start = startDate ? new Date(startDate) : null;
       const end = endDate ? new Date(endDate) : null;
-      const dateMatch =
-        (!start || recordDate >= start) && (!end || recordDate <= end);
 
-      return vaccineMatch && dateMatch;
+      const matchDate =
+        (!start || vDate >= start) && (!end || vDate <= end);
+
+      return matchVaccine && matchDate;
     });
 
-    return matchesClass && vaccinations.length > 0;
+    return matchClass && filteredVaccinations.length > 0;
   }).map((student) => ({
     ...student,
-    vaccinations: student.vaccinations.filter((record) => {
-      const vaccineMatch = selectedVaccine ? record.vaccine === selectedVaccine : true;
+    vaccinations: student.vaccinations.filter((v) => {
+      const matchVaccine = selectedVaccine
+        ? v.vaccine_name === selectedVaccine
+        : true;
 
-      const recordDate = new Date(record.date);
+      const vDate = new Date(v.date);
       const start = startDate ? new Date(startDate) : null;
       const end = endDate ? new Date(endDate) : null;
-      const dateMatch =
-        (!start || recordDate >= start) && (!end || recordDate <= end);
 
-      return vaccineMatch && dateMatch;
-    })
+      const matchDate =
+        (!start || vDate >= start) && (!end || vDate <= end);
+
+      return matchVaccine && matchDate;
+    }),
   }));
 
   return (
@@ -67,7 +74,11 @@ const Reports = () => {
           onChange={(e) => setSelectedVaccine(e.target.value)}
         >
           <option value="">All Vaccines</option>
-          {vaccineOptions.map((v) => (
+          {Array.from(
+            new Set(
+              data.flatMap((s) => s.vaccinations.map((v) => v.vaccine_name))
+            )
+          ).map((v) => (
             <option key={v} value={v}>
               {v}
             </option>
